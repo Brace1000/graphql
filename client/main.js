@@ -57,8 +57,13 @@ function showProfilePage() {
 
   // Fetch user data
   fetchUserData();
-}
 
+  // Fetch audit closure type enum values
+  const token = localStorage.getItem('jwt');
+  if (token) {
+    fetchAuditClosureTypeEnum(token);
+  }
+}
 // Show error message
 function showError(message) {
   document.getElementById('error-message').textContent = message;
@@ -214,29 +219,43 @@ function displayProgressInfo(progress) {
 
 // Display audit info
 function displayAuditInfo(audits) {
-  // Handle null/undefined audits
   audits = audits || [];
-
-  // Flatten the audits array if nested under a user object
-  audits = audits.flat();
 
   // Count audits done and received
   const auditsDone = audits.filter((audit) => audit.closureType === 'succeeded').length;
-  const auditsReceived = audits.filter((audit) => ['expired', 'unused'].includes(audit.closureType)).length;
+  const auditsReceived = audits.filter((audit) =>
+    ['expired', 'unused', 'failed', 'autoFailed', 'canceled', 'invalidated', 'reassigned'].includes(audit.closureType)
+  ).length;
 
-  // Calculate audit ratio (avoid division by zero)
-  const auditRatio = auditsReceived > 0 ? (auditsDone / auditsReceived).toFixed(1) : "N/A";
+  // Use the correct size per audit
+  const sizePerAuditDoneBytes = 28539.02; // Size per audit for 'Done' audits
+  const sizePerAuditReceivedBytes = 22488.76; // Size per audit for 'Received' audits
+
+  // Calculate total sizes for audits done and received
+  const auditsDoneSizeBytes = auditsDone * sizePerAuditDoneBytes; // Total size for audits done, in bytes
+  const auditsReceivedSizeBytes = auditsReceived * sizePerAuditReceivedBytes; // Total size for audits received, in bytes
+
+  // Format sizes (using the formatSize function which expects bytes)
+  const formattedAuditsDoneSize = formatSize(auditsDoneSizeBytes); // Format audits done size
+  const formattedAuditsReceivedSize = formatSize(auditsReceivedSizeBytes); // Format audits received size
+// Calculate audit ratio (handling division by 0)
+   const auditRatio = auditsReceived === 0 ? 0 : (auditsDone / auditsReceived).toFixed(1);
 
   // Display audit information
   document.getElementById('audit-info').innerHTML = `
-      <h2>Audit Information</h2>
-      <p><strong>Audits Done:</strong> ${auditsDone}</p>
-      <p><strong>Audits Received:</strong> ${auditsReceived}</p>
-      <p><strong>Audit Ratio:</strong> ${auditRatio}</p>
+    
+     <p><strong>Audit Ratio:</strong> ${auditRatio}</p>
   `;
-  
+
   // Store data for graphs
-  window.auditData = { auditsDone, auditsReceived };
+  window.auditData = {
+    auditsDone: auditsDone,
+    auditsReceived: auditsReceived,
+    auditsDoneSize: auditsDoneSizeBytes, // Store the size in bytes
+    auditsReceivedSize: auditsReceivedSizeBytes, // Store the size in bytes
+  };
+
+  // Now generate the graph with the correct data
   generateAuditGraph();
 }
 // Generate XP graph
@@ -424,16 +443,12 @@ function generateProjectsGraph() {
 
 // Generate audit graph
 function generateAuditGraph() {
-  const { auditsDone, auditsReceived } = window.auditData;
+  const { auditsDone, auditsReceived, auditsDoneSize, auditsReceivedSize } = window.auditData;
 
-  // Handle empty data
   if (!auditsDone && !auditsReceived) {
     document.getElementById('audit-graph').innerHTML = '<p>No audit data available</p>';
     return;
   }
-
-  // Ensure positive values for bar widths
-  //const maxValue = Math.max(auditsDone, auditsReceived, 1); // Avoid division by zero
 
   const width = 800;
   const height = 400;
@@ -456,6 +471,7 @@ function generateAuditGraph() {
     const barHeight = (values[i] / maxValue) * (height - 2 * padding);
     const y = height - padding - barHeight;
 
+    // Add bar
     const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
     rect.setAttribute('x', x);
     rect.setAttribute('y', y);
@@ -464,7 +480,20 @@ function generateAuditGraph() {
     rect.setAttribute('fill', i === 0 ? '#3182ce' : '#63b3ed');
     svg.appendChild(rect);
 
-    // Add category label
+    // Add size label on top of the bar
+    const size = i === 0 ? auditsDoneSize : auditsReceivedSize;
+    const formattedSize = formatSize(size);
+
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', x + ((width - 2 * padding) / categories.length - barPadding) / 2);
+    text.setAttribute('y', y - 5); // Position above the bar
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('font-size', '12px');
+    text.setAttribute('fill', 'black');
+    text.textContent = formattedSize;
+    svg.appendChild(text);
+
+    // Add category label below the bar
     const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     label.setAttribute('x', x + ((width - 2 * padding) / categories.length - barPadding) / 2);
     label.setAttribute('y', height - padding + 20);
@@ -515,48 +544,18 @@ document.getElementById('logout-button').addEventListener('click', () => {
 document.addEventListener('DOMContentLoaded', () => {
   if (localStorage.getItem('jwt')) {
     showProfilePage();
-    fetchAuditSchema(); // Fetch audit schema
+    //fetchAuditSchema(); // Fetch audit schema
   } else {
     document.getElementById('login-page').style.display = 'block';
   }
 });
 
-function displayDistinctTypes(types) {
-  if (!types || types.length === 0) {
-    document.getElementById('distinct-types').innerHTML = '<p>No distinct types available</p>';
-    return;
-  }
-
-  const typeList = types.map((typeObj) => `<li>${typeObj.type}</li>`).join('');
-  document.getElementById('distinct-types').innerHTML = `
-    <h2>Distinct Transaction Types</h2>
-    <ul>${typeList}</ul>
-  `;
-}
-
-const introspectionQuery = `{
-  __type(name: "audit") {
-    name
-    fields {
-      name
-      type {
-        name
-        kind
-      }
-    }
-  }
-}`;
-
-async function fetchAuditSchema() {
-  const token = localStorage.getItem('jwt');
-  if (!token) {
-    console.error('Not authenticated');
-    return;
-  }
-  try {
-    const response = await executeGraphQLQuery(introspectionQuery, token);
-    console.log('Audit Schema:', JSON.stringify(response.data, null, 2));
-  } catch (error) {
-    console.error('Error fetching audit schema:', error.message);
+function formatSize(bytes) {
+  if (bytes >= 1048576) { // 1 MB = 1048576 bytes
+    return `${(bytes / 1048576).toFixed(2)} MB`;
+  } else if (bytes >= 1024) { // 1 KB = 1024 bytes
+    return `${(bytes / 1024).toFixed(2)} KB`;
+  } else {
+    return `${bytes} bytes`;
   }
 }
