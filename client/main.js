@@ -311,7 +311,7 @@ function generateXPGraph() {
   const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
   path.setAttribute('d', pathData);
   path.setAttribute('fill', 'none');
-  path.setAttribute('stroke', '#4299e1');
+  path.setAttribute('stroke', '#6366f1');
   path.setAttribute('stroke-width', '2');
   svg.appendChild(path);
 
@@ -321,7 +321,7 @@ function generateXPGraph() {
   xAxis.setAttribute('y1', height - padding);
   xAxis.setAttribute('x2', width - padding);
   xAxis.setAttribute('y2', height - padding);
-  xAxis.setAttribute('stroke', 'black');
+  xAxis.setAttribute('stroke', 'white');
   svg.appendChild(xAxis);
 
   const yAxis = document.createElementNS('http://www.w3.org/2000/svg', 'line');
@@ -329,7 +329,7 @@ function generateXPGraph() {
   yAxis.setAttribute('y1', padding);
   yAxis.setAttribute('x2', padding);
   yAxis.setAttribute('y2', height - padding);
-  yAxis.setAttribute('stroke', 'black');
+  yAxis.setAttribute('stroke', 'white');
   svg.appendChild(yAxis);
 
   // Add labels
@@ -430,7 +430,7 @@ function generateProjectsGraph() {
   xAxis.setAttribute('y1', height - padding);
   xAxis.setAttribute('x2', width - padding);
   xAxis.setAttribute('y2', height - padding);
-  xAxis.setAttribute('stroke', 'black');
+  xAxis.setAttribute('stroke', 'white');
   svg.appendChild(xAxis);
 
   const yAxis = document.createElementNS('http://www.w3.org/2000/svg', 'line');
@@ -438,7 +438,7 @@ function generateProjectsGraph() {
   yAxis.setAttribute('y1', padding);
   yAxis.setAttribute('x2', padding);
   yAxis.setAttribute('y2', height - padding);
-  yAxis.setAttribute('stroke', 'black');
+  yAxis.setAttribute('stroke', 'white');
   svg.appendChild(yAxis);
 
   // Add title
@@ -446,7 +446,7 @@ function generateProjectsGraph() {
   title.setAttribute('x', width / 2);
   title.setAttribute('y', 25);
   title.setAttribute('text-anchor', 'middle');
-  title.setAttribute('font-weight', 'bold');
+  title.setAttribute('font-weight', 'white');
   title.textContent = 'Projects Completed by Category';
   svg.appendChild(title);
 
@@ -490,7 +490,7 @@ function generateAuditGraph() {
     rect.setAttribute('y', y);
     rect.setAttribute('width', (width - 2 * padding) / categories.length - barPadding);
     rect.setAttribute('height', barHeight);
-    rect.setAttribute('fill', i === 0 ? '#3182ce' : '#63b3ed');
+    rect.setAttribute('fill', i === 0 ? '#4f46e5' : '#4f46e5');
     svg.appendChild(rect);
 
     // Add size label on top of the bar
@@ -502,7 +502,7 @@ function generateAuditGraph() {
     text.setAttribute('y', y - 5); // Position above the bar
     text.setAttribute('text-anchor', 'middle');
     text.setAttribute('font-size', '12px');
-    text.setAttribute('fill', 'black');
+    text.setAttribute('fill', '#4f46e5');
     text.textContent = formattedSize;
     svg.appendChild(text);
 
@@ -522,7 +522,7 @@ function generateAuditGraph() {
   xAxis.setAttribute('y1', height - padding);
   xAxis.setAttribute('x2', width - padding);
   xAxis.setAttribute('y2', height - padding);
-  xAxis.setAttribute('stroke', 'black');
+  xAxis.setAttribute('stroke', '#1e293b');
   svg.appendChild(xAxis);
 
   const yAxis = document.createElementNS('http://www.w3.org/2000/svg', 'line');
@@ -530,7 +530,7 @@ function generateAuditGraph() {
   yAxis.setAttribute('y1', padding);
   yAxis.setAttribute('x2', padding);
   yAxis.setAttribute('y2', height - padding);
-  yAxis.setAttribute('stroke', 'black');
+  yAxis.setAttribute('stroke', '#1e293b');
   svg.appendChild(yAxis);
 
   // Add title

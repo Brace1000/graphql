@@ -48,7 +48,7 @@ export async function fetchSkillData(token) {
   }
   
   // Get top skills from transactions data
-  export function getTopSkills(skills, limit = 4) {
+  export function getTopSkills(skills, limit = 8) {
     // Filter skills and handle duplicates to get highest value
     const skillMap = new Map();
     
@@ -83,18 +83,18 @@ export async function fetchSkillData(token) {
     const centerY = 50;
     const radius = 40;
     const circumference = 2 * Math.PI * radius;
-    
+
     // Background circle (dark)
     const bgCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
     bgCircle.setAttribute('cx', centerX);
     bgCircle.setAttribute('cy', centerY);
     bgCircle.setAttribute('r', radius);
-    bgCircle.setAttribute('fill', 'none');
+    bgCircle.setAttribute('fill', '#0f172a');
     bgCircle.setAttribute('stroke', '#333');
     bgCircle.setAttribute('stroke-width', '8');
     svg.appendChild(bgCircle);
-    
-    // Progress circle (indigo/purple)
+
+    // Progress circle (color)
     const progressCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
     progressCircle.setAttribute('cx', centerX);
     progressCircle.setAttribute('cy', centerY);
@@ -103,17 +103,17 @@ export async function fetchSkillData(token) {
     progressCircle.setAttribute('stroke', '#6366f1');
     progressCircle.setAttribute('stroke-width', '8');
     progressCircle.setAttribute('stroke-dasharray', circumference.toString());
-    
+
     // Calculate stroke dash offset based on percentage
     const offset = circumference - (skill.amount / 100) * circumference;
     progressCircle.setAttribute('stroke-dashoffset', offset.toString());
-    
-    // Rotate to start from top
+
+    // Rotate to start from the top
     progressCircle.setAttribute('transform', `rotate(-90 ${centerX} ${centerY})`);
-    
+
     svg.appendChild(progressCircle);
-    
-    // Percentage text in center
+
+    // Add percentage text in the center
     const percentText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     percentText.setAttribute('x', centerX);
     percentText.setAttribute('y', centerY);
@@ -122,37 +122,37 @@ export async function fetchSkillData(token) {
     percentText.setAttribute('font-size', '16');
     percentText.setAttribute('font-weight', 'bold');
     percentText.setAttribute('fill', '#fff');
-    percentText.textContent = `${Math.round(skill.amount)}%`;
-    
+    percentText.textContent = `${Math.round(skill.amount)}%`;  // Ensure percentage is displayed
+
     svg.appendChild(percentText);
-    
+
     return svg;
-  }
+}
   
   // Display skill information section
   export function displaySkillInfo(skills) {
     const container = document.getElementById('skills-container');
     if (!container) {
-      console.error('Skills container not found');
-      return;
+        console.error('Skills container not found');
+        return;
     }
-    
-    // Clear loading message
+
+    // Clear previous content
     container.innerHTML = '';
-    
+
     if (!skills || skills.length === 0) {
-      container.innerHTML = '<p>No skills data available</p>';
-      return;
+        container.innerHTML = '<p>No skills data available</p>';
+        return;
     }
-    
-    // Create skills section wrapper
+
+    // Create section wrapper for skills
     const skillsSection = document.createElement('div');
     skillsSection.className = 'skills-section';
-    
-    // Create header with title and "See more" link
+
+    // Create header
     const header = document.createElement('div');
     header.className = 'section-header';
-    
+
     const title = document.createElement('h3');
     title.textContent = 'Best skills';
     header.appendChild(title);
@@ -164,44 +164,43 @@ export async function fetchSkillData(token) {
     header.appendChild(seeMoreLink);
     
     skillsSection.appendChild(header);
-    
-    // Add description
+
+    // Description
     const description = document.createElement('p');
     description.className = 'section-description';
     description.textContent = 'Here are your skills with the highest completion rate among all categories.';
     skillsSection.appendChild(description);
-    
-    // Create skills grid
+
+    // Create grid for skills
     const skillsGrid = document.createElement('div');
     skillsGrid.className = 'skills-grid';
-    
-    // Get top skills and create skill items
+
+    // Get top skills and render them
     const topSkills = getTopSkills(skills);
     
     topSkills.forEach(skill => {
-      const skillItem = document.createElement('div');
-      skillItem.className = 'skill-item';
-      
-      // Add skill circle
-      const circle = createSkillCircle(skill);
-      skillItem.appendChild(circle);
-      
-      // Add skill name
-      const skillName = document.createElement('div');
-      skillName.className = 'skill-name';
-      skillName.textContent = skill.name;
-      skillItem.appendChild(skillName);
-      
-      skillsGrid.appendChild(skillItem);
+        const skillItem = document.createElement('div');
+        skillItem.className = 'skill-item';
+
+        // Create and append skill circle
+        const circle = createSkillCircle(skill);
+        skillItem.appendChild(circle);
+
+        // Create and append skill name
+        const skillName = document.createElement('div');
+        skillName.className = 'skill-name';
+        skillName.textContent = skill.name;
+        skillItem.appendChild(skillName);
+
+        skillsGrid.appendChild(skillItem);
     });
-    
+
     skillsSection.appendChild(skillsGrid);
     container.appendChild(skillsSection);
-    
+
     // Add styles
     addSkillStyles();
-  }
-  
+}
   // Add required CSS styles
   function addSkillStyles() {
     // Check if styles already exist
@@ -213,7 +212,7 @@ export async function fetchSkillData(token) {
     styleElement.id = 'skill-styles';
     styleElement.textContent = `
       .skills-section {
-        background-color: #1e1e1e;
+        background-color:#0f172a;
         border-radius: 8px;
         padding: 20px;
         margin-bottom: 20px;
@@ -233,7 +232,7 @@ export async function fetchSkillData(token) {
       }
       
       .see-more {
-        color: #6366f1;
+        color:#0f172a;
         text-decoration: none;
       }
       
