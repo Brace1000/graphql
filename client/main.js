@@ -1,3 +1,5 @@
+import { fetchSkillData, displaySkillInfo } from './skills.js';
+
 // Configuration
 const config = {
   apiEndpoint: 'https://learn.zone01kisumu.ke/api/graphql-engine/v1/graphql',
@@ -61,7 +63,16 @@ function showProfilePage() {
   // Fetch audit closure type enum values
   const token = localStorage.getItem('jwt');
   if (token) {
-    fetchAuditClosureTypeEnum(token);
+    //fetchAuditClosureTypeEnum(token);
+    // Fetch skill data
+    fetchSkillData(token) // Fetch skills data
+      .then(skills => {
+        displaySkillInfo(skills); // Display the skills
+      })
+      .catch(err => {
+        console.error('Error fetching skills:', err);
+        showError('Error fetching skills data.');
+      });
   }
 }
 // Show error message
@@ -157,7 +168,8 @@ displayAuditInfo(audits);
 }
 
 // Execute GraphQL query
-async function executeGraphQLQuery(query, token) {
+// In main.js
+export async function executeGraphQLQuery(query, token) {
   const response = await fetch(config.apiEndpoint, {
     method: 'POST',
     headers: {
@@ -166,6 +178,7 @@ async function executeGraphQLQuery(query, token) {
     },
     body: JSON.stringify({ query }),
   });
+
   if (!response.ok) {
     throw new Error(`GraphQL error: ${response.status}`);
   }
