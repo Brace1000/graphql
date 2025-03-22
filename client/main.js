@@ -330,6 +330,7 @@ function generateXPGraph() {
   yAxis.setAttribute('x2', padding);
   yAxis.setAttribute('y2', height - padding);
   yAxis.setAttribute('stroke', 'white');
+  
   svg.appendChild(yAxis);
 
   // Add labels
@@ -337,15 +338,20 @@ function generateXPGraph() {
   title.setAttribute('x', width / 2);
   title.setAttribute('y', 25);
   title.setAttribute('text-anchor', 'middle');
-  title.setAttribute('font-weight', 'bold');
+  title.setAttribute('font-weight', 'semi-bold');
+  title.setAttribute('fill', 'white');
   title.textContent = 'XP Earned Over Time';
+  title.setAttribute('fill', 'white');
   svg.appendChild(title);
 
   const xLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
   xLabel.setAttribute('x', width / 2);
   xLabel.setAttribute('y', height - 10);
   xLabel.setAttribute('text-anchor', 'middle');
+  title.setAttribute('fill', 'white');
   xLabel.textContent = 'Date';
+  xLabel.setAttribute('fill', 'white');
+  
   svg.appendChild(xLabel);
 
   const yLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
@@ -353,7 +359,9 @@ function generateXPGraph() {
   yLabel.setAttribute('y', 15);
   yLabel.setAttribute('text-anchor', 'middle');
   yLabel.setAttribute('transform', 'rotate(-90)');
+  yLabel.setAttribute('fill', 'white');
   yLabel.textContent = 'XP';
+ 
   svg.appendChild(yLabel);
 
   document.getElementById('xp-graph').innerHTML = '';
@@ -512,6 +520,7 @@ function generateAuditGraph() {
     label.setAttribute('y', height - padding + 20);
     label.setAttribute('text-anchor', 'middle');
     label.setAttribute('font-size', '12px');
+    label.setAttribute('fill', 'white');
     label.textContent = category;
     svg.appendChild(label);
   });
@@ -523,6 +532,7 @@ function generateAuditGraph() {
   xAxis.setAttribute('x2', width - padding);
   xAxis.setAttribute('y2', height - padding);
   xAxis.setAttribute('stroke', '#1e293b');
+ // xLabel.setAttribute('fill', 'white');
   svg.appendChild(xAxis);
 
   const yAxis = document.createElementNS('http://www.w3.org/2000/svg', 'line');
@@ -531,6 +541,7 @@ function generateAuditGraph() {
   yAxis.setAttribute('x2', padding);
   yAxis.setAttribute('y2', height - padding);
   yAxis.setAttribute('stroke', '#1e293b');
+ // xLabel.setAttribute('fill', 'white');
   svg.appendChild(yAxis);
 
   // Add title
@@ -538,8 +549,9 @@ function generateAuditGraph() {
   title.setAttribute('x', width / 2);
   title.setAttribute('y', 25);
   title.setAttribute('text-anchor', 'middle');
-  title.setAttribute('font-weight', 'bold');
+  title.setAttribute('font-weight', 'semi-bold');
   title.textContent = 'Audits Done vs. Audits Received';
+  title.setAttribute('fill', 'white');
   svg.appendChild(title);
 
   document.getElementById('audit-graph').innerHTML = '';
