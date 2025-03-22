@@ -227,7 +227,7 @@ function displayProgressInfo(progress) {
 
   // Store data for graphs
   window.progressData = progress;
-  generateProjectsGraph();
+  //generateProjectsGraph();
 }
 
 // Display audit info
@@ -368,99 +368,6 @@ function generateXPGraph() {
   document.getElementById('xp-graph').appendChild(svg);
 }
 
-// Generate projects graph
-function generateProjectsGraph() {
-  if (!window.progressData || window.progressData.length === 0) {
-    document.getElementById('projects-graph').innerHTML = '<p>No progress data available</p>';
-    return;
-  }
-
-  // Group projects by path
-  const projects = {};
-  window.progressData.forEach((proj) => {
-    const pathParts = proj.path.split('/');
-    const category = pathParts[pathParts.length - 2] || 'unknown';
-
-    if (!projects[category]) {
-      projects[category] = {
-        count: 0,
-        totalGrade: 0,
-      };
-    }
-
-    projects[category].count++;
-    projects[category].totalGrade += proj.grade;
-  });
-
-  // Prepare data for the bar chart
-  const categories = Object.keys(projects);
-
-  // Set up dimensions
-  const width = 800;
-  const height = 400;
-  const padding = 50;
-  const barPadding = 30;
-  const barWidth = (width - 2 * padding) / categories.length - barPadding;
-
-  // Create SVG
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('width', width);
-  svg.setAttribute('height', height);
-  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
-
-  // Draw bars
-  categories.forEach((category, i) => {
-    const x = padding + i * (barWidth + barPadding);
-    const barHeight = (projects[category].count / Math.max(...categories.map((c) => projects[c].count))) * (height - 2 * padding);
-    const y = height - padding - barHeight;
-
-    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    rect.setAttribute('x', x);
-    rect.setAttribute('y', y);
-    rect.setAttribute('width', barWidth);
-    rect.setAttribute('height', barHeight);
-    rect.setAttribute('fill', '#48bb78');
-    svg.appendChild(rect);
-
-    // Add category label
-    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    label.setAttribute('x', x + barWidth / 2);
-    label.setAttribute('y', height - padding + 20);
-    label.setAttribute('text-anchor', 'middle');
-    label.setAttribute('font-size', '12px');
-    label.textContent = category;
-    svg.appendChild(label);
-  });
-
-  // Add axes
-  const xAxis = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-  xAxis.setAttribute('x1', padding);
-  xAxis.setAttribute('y1', height - padding);
-  xAxis.setAttribute('x2', width - padding);
-  xAxis.setAttribute('y2', height - padding);
-  xAxis.setAttribute('stroke', 'white');
-  svg.appendChild(xAxis);
-
-  const yAxis = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-  yAxis.setAttribute('x1', padding);
-  yAxis.setAttribute('y1', padding);
-  yAxis.setAttribute('x2', padding);
-  yAxis.setAttribute('y2', height - padding);
-  yAxis.setAttribute('stroke', 'white');
-  svg.appendChild(yAxis);
-
-  // Add title
-  const title = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-  title.setAttribute('x', width / 2);
-  title.setAttribute('y', 25);
-  title.setAttribute('text-anchor', 'middle');
-  title.setAttribute('font-weight', 'white');
-  title.textContent = 'Projects Completed by Category';
-  svg.appendChild(title);
-
-  document.getElementById('projects-graph').innerHTML = '';
-  document.getElementById('projects-graph').appendChild(svg);
-}
 
 // Generate audit graph
 function generateAuditGraph() {
