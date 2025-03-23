@@ -278,3 +278,28 @@
   margin-left: 0px; /* Push the header content to the right so it doesn't overlap with the logo */
   padding: 20px;
 }
+/* Password input wrapper */
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Password input field */
+#password {
+  flex: 1;
+  padding-right: 40px; /* Space for the toggle icon */
+}
+
+/* Password toggle icon */
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 18px;
+}
+
+.password-toggle:hover {
+  opacity: 0.8;
+}
