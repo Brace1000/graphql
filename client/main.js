@@ -1,5 +1,6 @@
 import { fetchSkillData, displaySkillInfo } from './skills.js';
 
+import { initAudits, updateAudits } from './audits.js';
 // Configuration
 const config = {
   apiEndpoint: 'https://learn.zone01kisumu.ke/api/graphql-engine/v1/graphql',
@@ -130,38 +131,6 @@ async function fetchUserData() {
     const progressData = await executeGraphQLQuery(progressQuery, token);
     displayProgressInfo(progressData.data.progress);
 
-    // Fetch audit data
-    const auditQuery = `{
-      user {
-        audits {
-          id
-          closureType
-          auditedAt
-          closedAt
-          createdAt
-        }
-      }
-    }`;
-    const auditData = await executeGraphQLQuery(auditQuery, token);
-    console.log('Audit Query:', auditQuery);
-    console.log('Audit Data Response:', JSON.stringify(auditData, null, 2));
-    
-    // Extract audits from the response
-const audits = auditData.data.user.flatMap((user) => user.audits || []);
-displayAuditInfo(audits);
-
-    // Fetch distinct transaction types
-    const distinctTypeQuery = `{
-      transaction(distinct_on: type) {
-        type
-      }
-    }`;
-    const distinctTypeData = await executeGraphQLQuery(distinctTypeQuery, token);
-    console.log('Distinct Type Query:', distinctTypeQuery);
-    console.log('Distinct Type Data Response:', JSON.stringify(distinctTypeData, null, 2));
-
-    // Display distinct types (optional)
-    displayDistinctTypes(distinctTypeData.data.transaction);
   } catch (error) {
     showError('Error fetching data: ' + error.message);
   }
@@ -230,47 +199,7 @@ function displayProgressInfo(progress) {
   //generateProjectsGraph();
 }
 
-// Display audit info
-function displayAuditInfo(audits) {
-  audits = audits || [];
 
-  // Count audits done and received
-  const auditsDone = audits.filter((audit) => audit.closureType === 'succeeded').length;
-  const auditsReceived = audits.filter((audit) =>
-    ['expired', 'unused', 'failed', 'autoFailed', 'canceled', 'invalidated', 'reassigned'].includes(audit.closureType)
-  ).length;
-
-  // Use the correct size per audit
-  const sizePerAuditDoneBytes = 28539.02; // Size per audit for 'Done' audits
-  const sizePerAuditReceivedBytes = 22488.76; // Size per audit for 'Received' audits
-
-  // Calculate total sizes for audits done and received
-  const auditsDoneSizeBytes = auditsDone * sizePerAuditDoneBytes; // Total size for audits done, in bytes
-  const auditsReceivedSizeBytes = auditsReceived * sizePerAuditReceivedBytes; // Total size for audits received, in bytes
-
-  // Format sizes (using the formatSize function which expects bytes)
-  const formattedAuditsDoneSize = formatSize(auditsDoneSizeBytes); // Format audits done size
-  const formattedAuditsReceivedSize = formatSize(auditsReceivedSizeBytes); // Format audits received size
-// Calculate audit ratio (handling division by 0)
-   const auditRatio = auditsReceived === 0 ? 0 : (auditsDone / auditsReceived).toFixed(1);
-
-  // Display audit information
-  document.getElementById('audit-info').innerHTML = `
-    
-     <p><strong>Audit Ratio:</strong> ${auditRatio}</p>
-  `;
-
-  // Store data for graphs
-  window.auditData = {
-    auditsDone: auditsDone,
-    auditsReceived: auditsReceived,
-    auditsDoneSize: auditsDoneSizeBytes, // Store the size in bytes
-    auditsReceivedSize: auditsReceivedSizeBytes, // Store the size in bytes
-  };
-
-  // Now generate the graph with the correct data
-  generateAuditGraph();
-}
 // Generate XP graph
 function generateXPGraph() {
   if (!window.xpData || window.xpData.length === 0) {
@@ -369,101 +298,6 @@ function generateXPGraph() {
 }
 
 
-// Generate audit graph
-function generateAuditGraph() {
-  const { auditsDone, auditsReceived, auditsDoneSize, auditsReceivedSize } = window.auditData;
-
-  if (!auditsDone && !auditsReceived) {
-    document.getElementById('audit-graph').innerHTML = '<p>No audit data available</p>';
-    return;
-  }
-
-  const width = 800;
-  const height = 400;
-  const padding = 50;
-  const barPadding = 30;
-
-  // Create SVG
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('width', width);
-  svg.setAttribute('height', height);
-  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
-
-  // Draw bars
-  const categories = ['Audits Done', 'Audits Received'];
-  const values = [auditsDone, auditsReceived];
-  const maxValue = Math.max(...values);
-
-  categories.forEach((category, i) => {
-    const x = padding + i * ((width - 2 * padding) / categories.length);
-    const barHeight = (values[i] / maxValue) * (height - 2 * padding);
-    const y = height - padding - barHeight;
-
-    // Add bar
-    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    rect.setAttribute('x', x);
-    rect.setAttribute('y', y);
-    rect.setAttribute('width', (width - 2 * padding) / categories.length - barPadding);
-    rect.setAttribute('height', barHeight);
-    rect.setAttribute('fill', i === 0 ? '#4f46e5' : '#4f46e5');
-    svg.appendChild(rect);
-
-    // Add size label on top of the bar
-    const size = i === 0 ? auditsDoneSize : auditsReceivedSize;
-    const formattedSize = formatSize(size);
-
-    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    text.setAttribute('x', x + ((width - 2 * padding) / categories.length - barPadding) / 2);
-    text.setAttribute('y', y - 5); // Position above the bar
-    text.setAttribute('text-anchor', 'middle');
-    text.setAttribute('font-size', '12px');
-    text.setAttribute('fill', '#4f46e5');
-    text.textContent = formattedSize;
-    svg.appendChild(text);
-
-    // Add category label below the bar
-    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    label.setAttribute('x', x + ((width - 2 * padding) / categories.length - barPadding) / 2);
-    label.setAttribute('y', height - padding + 20);
-    label.setAttribute('text-anchor', 'middle');
-    label.setAttribute('font-size', '12px');
-    label.setAttribute('fill', 'white');
-    label.textContent = category;
-    svg.appendChild(label);
-  });
-
-  // Add axes
-  const xAxis = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-  xAxis.setAttribute('x1', padding);
-  xAxis.setAttribute('y1', height - padding);
-  xAxis.setAttribute('x2', width - padding);
-  xAxis.setAttribute('y2', height - padding);
-  xAxis.setAttribute('stroke', '#1e293b');
- // xLabel.setAttribute('fill', 'white');
-  svg.appendChild(xAxis);
-
-  const yAxis = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-  yAxis.setAttribute('x1', padding);
-  yAxis.setAttribute('y1', padding);
-  yAxis.setAttribute('x2', padding);
-  yAxis.setAttribute('y2', height - padding);
-  yAxis.setAttribute('stroke', '#1e293b');
- // xLabel.setAttribute('fill', 'white');
-  svg.appendChild(yAxis);
-
-  // Add title
-  const title = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-  title.setAttribute('x', width / 2);
-  title.setAttribute('y', 25);
-  title.setAttribute('text-anchor', 'middle');
-  title.setAttribute('font-weight', 'semi-bold');
-  title.textContent = 'Audits Done vs. Audits Received';
-  title.setAttribute('fill', 'white');
-  svg.appendChild(title);
-
-  document.getElementById('audit-graph').innerHTML = '';
-  document.getElementById('audit-graph').appendChild(svg);
-}
 
 // Handle logout
 document.getElementById('logout-button').addEventListener('click', () => {
@@ -476,13 +310,13 @@ document.getElementById('logout-button').addEventListener('click', () => {
 document.addEventListener('DOMContentLoaded', () => {
   if (localStorage.getItem('jwt')) {
     showProfilePage();
-    //fetchAuditSchema(); // Fetch audit schema
+    //initAudits(); // Fetch audit schema
   } else {
     document.getElementById('login-page').style.display = 'block';
   }
 });
 
-function formatSize(bytes) {
+ export function formatSize(bytes) {
   if (bytes >= 1048576) { // 1 MB = 1048576 bytes
     return `${(bytes / 1048576).toFixed(2)} MB`;
   } else if (bytes >= 1024) { // 1 KB = 1024 bytes
