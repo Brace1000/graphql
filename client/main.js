@@ -8,6 +8,7 @@ const config = {
 };
 
 // Handle login form submission
+// Handle login form submission
 document.getElementById('login-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const username = document.getElementById('username').value;
@@ -53,6 +54,17 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
   }
 });
 
+// Handle password visibility toggle
+document.getElementById('toggle-password').addEventListener('click', function () {
+  const passwordInput = document.getElementById('password');
+  if (passwordInput.type === "password") {
+    passwordInput.type = "text";
+    this.textContent = "🙈"; // Hide icon
+  } else {
+    passwordInput.type = "password";
+    this.textContent = "👁️"; // Show icon
+  }
+});
 // Show profile page
 function showProfilePage() {
   document.getElementById('login-page').style.display = 'none';
