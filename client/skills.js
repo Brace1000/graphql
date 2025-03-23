@@ -14,8 +14,8 @@ export async function fetchSkillData(token) {
     }`;
     
     const skillData = await executeGraphQLQuery(skillQuery, token);
-    console.log('Skill Query:', skillQuery);
-    console.log('Skill Data Response:', JSON.stringify(skillData, null, 2));
+    // console.log('Skill Query:', skillQuery);
+    // console.log('Skill Data Response:', JSON.stringify(skillData, null, 2));
     
     // Check if user data exists and has skills
     if (skillData?.data?.user && skillData.data.user.length > 0) {
