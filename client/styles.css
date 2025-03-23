@@ -12,7 +12,7 @@
   }
   
   .container {
-    max-width: 1200px;
+    max-width: 1500px;
     margin: 0 auto;
     padding: 20px;
     border: 1px white;
@@ -32,8 +32,8 @@
     max-width: 500px;
     margin: 0 auto;
    
-    padding: 30px;
-    border-radius: 8px;
+    padding: 70px;
+    border-radius: 15px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     background: #1e293b;
   }
@@ -152,10 +152,13 @@
 
 .Logout container styles
 .login-container {
-  position: absolute;
-  top: 20px; /* Adjust as needed */
-  right: 20px; /* Adjust as needed */
-  z-index: 1000; /* Ensure it's above other elements */
+  position: Absolute;
+  top: 100px; /* Adjust as needed */
+  right: 50px; /* Adjust as needed */
+  z-index: 1000;
+  width:400px
+  
+  /* Ensure it's above other elements */
 }
 
 /* Logout button styles */
@@ -259,4 +262,19 @@
 .audit-item p {
   margin: 5px 0;
   font-size: 14px;
+}
+/* Position the logo outside the header and in the top-left corner */
+.logo {
+  position: fixed;
+  top: 20px; /* Adjust this value to move it down from the top of the page */
+  left: 20px; /* Adjust this value to move it away from the left side */
+  width: 200px; /* Adjust the size of the logo */
+  height: auto;
+  z-index: 1000; /* Ensure the logo stays on top of other elements */
+}
+
+/* Adjust the header position */
+.header {
+  margin-left: 0px; /* Push the header content to the right so it doesn't overlap with the logo */
+  padding: 20px;
 }

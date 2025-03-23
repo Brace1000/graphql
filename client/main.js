@@ -64,7 +64,7 @@ function showProfilePage() {
   // Fetch audit closure type enum values
   const token = localStorage.getItem('jwt');
   if (token) {
-    //fetchAuditClosureTypeEnum(token);
+    
     // Fetch skill data
     fetchSkillData(token) // Fetch skills data
       .then(skills => {
@@ -137,7 +137,7 @@ async function fetchUserData() {
 }
 
 // Execute GraphQL query
-// In main.js
+
 export async function executeGraphQLQuery(query, token) {
   const response = await fetch(config.apiEndpoint, {
     method: 'POST',
@@ -173,7 +173,7 @@ function displayXPInfo(transactions) {
   document.getElementById('xp-info').innerHTML = `
     <h2>XP Information</h2>
     <p><strong>Total XP:</strong> ${totalXP.toLocaleString()}</p>
-    <p><strong>Transactions:</strong> ${transactions.length}</p>
+    
   `;
 
   // Store data for graphs
