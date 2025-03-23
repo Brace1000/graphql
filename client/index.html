@@ -42,9 +42,13 @@
     <!-- Profile Page -->
     <div id="profile-page" style="display: none;">
       <div class="profile-header">
-        <h2>Your School Profile</h2>
+        <div id="audits-dropdown" style="display: none;"></div>
+        <button id="audits-btn">Audits</button>
+        
         <button id="logout-button">Log Out</button>
+        
       </div>
+      
 
       <div class="grid">
         <!-- User Info Card -->
@@ -77,6 +81,11 @@
           <h2>Audit Information</h2>
           <p>Loading audit information...</p>
         </div>
+        <!-- Audit dropdown and button -->
+         <!-- <button id="audits-btn">Audits</button>
+            -->
+  <!-- Audit items will be dynamically added here -->
+             </div>
 
         <!-- XP Graph -->
         <div class="card full-width">
@@ -86,13 +95,7 @@
           </div>
         </div>
 
-        <!-- Projects Graph -->
-        <div class="card full-width">
-          <h2>Projects by Category</h2>
-          <div id="projects-graph">
-            <p>Loading projects graph...</p>
-          </div>
-        </div>
+        
 
         <!-- Audit Graph -->
         <div class="card full-width">
@@ -104,10 +107,8 @@
       </div>
     </div>
   </div>
-  <div id="distinct-types">
-    <!-- Distinct transaction types will be displayed here -->
-  </div>
-
+  
   <script type="module" src="main.js"></script>
+  <script type="module" src="audits.js"></script>
 </body>
 </html>
