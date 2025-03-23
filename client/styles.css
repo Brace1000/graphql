@@ -149,4 +149,114 @@
       grid-column: span 1;
     }
   }
-  
+
+.Logout container styles
+.login-container {
+  position: absolute;
+  top: 20px; /* Adjust as needed */
+  right: 20px; /* Adjust as needed */
+  z-index: 1000; /* Ensure it's above other elements */
+}
+
+/* Logout button styles */
+#logout-button {
+  background: #6366f1; /* Red-600 */
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+#logout-button:hover {
+  background: #b91c1c; /* Red-700 */
+}
+
+/* Profile header styles */
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: #1e293b; /* Slate-800 */
+  color: white;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.profile-header h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+/* Audit button styles */
+#audits-btn {
+  background: #4f46e5; /* Indigo-600 */
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+#audits-btn:hover {
+  background: #4338ca; /* Indigo-700 */
+}
+
+/* Audits dropdown styles */
+#audits-dropdown {
+  display: none;
+  position: absolute;
+  top: 60px;
+  right: 120px;
+  background: #0f172a; /* Slate-900 */
+  color: white;
+  border-radius: 12px;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+  width: 320px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 16px;
+  z-index: 10;
+  transition: all 0.3s ease;
+}
+
+/* Custom scrollbar for audits dropdown */
+#audits-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+#audits-dropdown::-webkit-scrollbar-track {
+  background: #1e293b; /* Slate-800 */
+  border-radius: 3px;
+}
+
+#audits-dropdown::-webkit-scrollbar-thumb {
+  background: #4f46e5; /* Indigo-600 */
+  border-radius: 3px;
+}
+
+#audits-dropdown.active {
+  display: block;
+}
+
+.audit-item {
+  background: #0f172a; /* Slate-900 */
+  padding: 14px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  border-left: 4px solid #6366f1; /* Indigo-500 */
+  transition: all 0.2s ease;
+}
+
+.audit-item:hover {
+  transform: translateX(2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.audit-item p {
+  margin: 5px 0;
+  font-size: 14px;
+}
