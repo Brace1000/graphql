@@ -198,18 +198,37 @@ function displayUserInfo(user) {
 
 // Display XP info
 function displayXPInfo(transactions) {
-  let totalXP = 0;
-  transactions.forEach((tx) => {
-    totalXP += tx.amount;
-  });
+  const container = document.getElementById('xp-info');
+  if (!container) {
+    console.error('XP info container not found');
+    return;
+  }
 
-  document.getElementById('xp-info').innerHTML = `
+  if (!transactions || transactions.length === 0) {
+    container.innerHTML = `
+      <h2>XP Information</h2>
+      <p>No XP data available</p>
+    `;
+    return;
+  }
+
+  // Calculate cumulative XP
+  const totalXP = transactions.reduce((sum, tx) => sum + tx.amount, 0);
+
+  // Format total XP using the opt function (or formatSize if needed)
+  const formattedXP = opt(totalXP);
+
+  // Display the formatted XP
+  container.innerHTML = `
     <h2>XP Information</h2>
-    <p><strong>Total XP (Module 75):</strong> ${totalXP.toLocaleString()}</p>
+    <p><strong>Total XP (Module 75):</strong> ${formattedXP}</p>
     <p><strong>Projects Completed:</strong> ${transactions.length}</p>
   `;
 
+  // Store cumulative XP data for graphing
   window.xpData = transactions;
+
+  // Generate the XP graph
   generateXPGraph();
 }
 
@@ -379,3 +398,18 @@ document.addEventListener('DOMContentLoaded', () => {
     return `${bytes} bytes`;
   }
  }
+ export function opt(xp) {
+  if (xp < 1000) {
+      return xp + " Bytes";
+  }
+  let mbs = xp / 1000;
+  if (mbs < 1000) {
+      return mbs.toFixed(2) + " KB";
+  }
+  let gbs = mbs / 1000;
+  if (gbs < 1000) {
+      return gbs.toFixed(2) + " MB";
+  }
+  let tbs = gbs / 1000;
+  return tbs.toFixed(2) + " GB";
+}
