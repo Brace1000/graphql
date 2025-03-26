@@ -328,3 +328,26 @@
   font-size: 14px;
   color: #94a3b8;
 }
+.audit-display {
+  text-align: center;
+  margin-top: 15px;
+}
+
+.audit-ratio-box {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px; /* Slightly rounded corners instead of circle */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: bold;
+  color: white;
+  margin: 0 auto 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.audit-label {
+  font-size: 14px;
+  color: #94a3b8;
+}

@@ -60,6 +60,7 @@ export async function initAudits(token) {
 
 function displayAuditInfo(audits, auditRatio) {
   audits = audits || [];
+
   // Count audits done and received
   const auditsDone = audits.filter((audit) => audit.closureType === 'succeeded').length;
   const auditsReceived = audits.filter((audit) =>
@@ -78,24 +79,31 @@ function displayAuditInfo(audits, auditRatio) {
   const formattedAuditsDoneSize = formatSize(auditsDoneSizeBytes);
   const formattedAuditsReceivedSize = formatSize(auditsReceivedSizeBytes);
 
-  // Display audit information
-  document.getElementById('audit-info').innerHTML = `
-    <p><strong>Audit Ratio:</strong> ${auditRatio.toFixed(1)}</p>
-    <p><strong>Audits Done:</strong> ${auditsDone}</p>
-    <p><strong>Audits Received:</strong> ${auditsReceived}</p>
-    <p><strong>Audits Done Size:</strong> ${formattedAuditsDoneSize}</p>
-    <p><strong>Audits Received Size:</strong> ${formattedAuditsReceivedSize}</p>
-  `;
-
-  // Store data for graphs
+  // Store all relevant data in window.auditData
   window.auditData = {
-    auditsDone: auditsDone,
-    auditsReceived: auditsReceived,
+    auditsDone,
+    auditsReceived,
     auditsDoneSize: auditsDoneSizeBytes,
     auditsReceivedSize: auditsReceivedSizeBytes,
   };
 
-  // Now generate the graph with the correct data
+  // Display audit information
+  const auditContainer = document.getElementById('audit-info');
+  let ratioColor = '#ef4444'; // Default red
+  if (auditRatio >= 1.0) ratioColor = '#10b981'; // Green
+  else if (auditRatio >= 1.5) ratioColor = 'orange';
+
+  auditContainer.innerHTML = `
+    <h2>Audit Status</h2>
+    <div class="audit-display">
+      <div class="audit-ratio-box" style="background: ${ratioColor}">
+        ${auditRatio.toFixed(1)}
+      </div>
+      <p class="audit-label">Current Audit Ratio</p>
+    </div>
+  `;
+
+  // Generate the graph with the correct data
   generateAuditGraph();
 }
 export function updateAudits(audits) {
@@ -178,10 +186,8 @@ function setupAuditDropdownListeners() {
   });
 }
 function generateAuditGraph() {
-  
   console.log("Audit Data:", window.auditData);
-  const { auditsDone, auditsReceived, auditsDoneSize, auditsReceivedSize } = window.auditData ;
-   
+  const { auditsDone, auditsReceived, auditsDoneSize, auditsReceivedSize } = window.auditData;
 
   const auditGraph = document.getElementById('audit-graph');
   if (!auditGraph) {
