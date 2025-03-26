@@ -7,7 +7,7 @@ const config = {
   authEndpoint: 'https://learn.zone01kisumu.ke/api/auth/signin',
 };
 
-// Handle login form submission
+
 // Handle login form submission
 document.getElementById('login-form').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -111,6 +111,17 @@ async function fetchUserData() {
     const userData = await executeGraphQLQuery(userQuery, token);
     displayUserInfo(userData.data.user[0]);
 
+      // Fetch current level in module 75
+      const levelQuery = `{
+        user {
+          events(where: {eventId: {_eq: 75}}) {
+            level
+          }
+        }
+      }`;
+      
+      const levelData = await executeGraphQLQuery(levelQuery, token);
+      displayModuleLevel(levelData.data.user[0].events[0]?.level || 0);
     // Fetch XP data
     const xpQuery = `{
       transaction(
@@ -142,32 +153,22 @@ async function fetchUserData() {
     const xpData = await executeGraphQLQuery(xpQuery, token);
     displayXPInfo(xpData.data.transaction);
 
-    // Fetch progress data
-    const progressQuery = `{
-      progress(
-        where: {
-          grade: {_gt: 0},
-          eventId: {_eq: 75}
-        }, 
-        order_by: {updatedAt: desc}
-      ) {
-        id
-        grade
-        updatedAt
-        path
-        object {
-          name
-          type
-        }
-      }
-    }`;
-    
-    const progressData = await executeGraphQLQuery(progressQuery, token);
-    displayProgressInfo(progressData.data.progress);
-
-  } 
+  }
 }
-
+// Add this new function to display the level
+function displayModuleLevel(level) {
+  const levelContainer = document.getElementById('level-info');
+  
+  levelContainer.innerHTML = `
+    <h2>Module Progress</h2>
+    <div class="level-display">
+      <div class="level-circle">
+        ${level}
+      </div>
+      <p class="level-label">Current Level in Module 75</p>
+    </div>
+  `;
+}
 // Execute GraphQL query
 
 export async function executeGraphQLQuery(query, token) {
@@ -212,24 +213,8 @@ function displayXPInfo(transactions) {
   generateXPGraph();
 }
 
-// Display progress info
-function displayProgressInfo(progress) {
-  const totalProjects = progress.length;
-  const totalGrades = progress.reduce((sum, proj) => sum + proj.grade, 0);
-  const averageGrade = totalProjects > 0 ? (totalGrades / totalProjects).toFixed(2) : 0;
 
-  document.getElementById('progress-info').innerHTML = `
-    <h2>Module 75 Progress</h2>
-    <p><strong>Completed Projects:</strong> ${totalProjects}</p>
-    <p><strong>Total Grades:</strong> ${totalGrades}</p>
-    <p><strong>Average Grade:</strong> ${averageGrade}</p>
-    <p><strong>Latest Project:</strong> ${progress[0]?.path || 'None'}</p>
-  `;
 
-  window.progressData = progress;
-}
-
-// Generate XP graph
 // Enhanced XP Graph Function
 function generateXPGraph() {
   const container = document.getElementById('xp-graph');
@@ -393,4 +378,4 @@ document.addEventListener('DOMContentLoaded', () => {
   } else {
     return `${bytes} bytes`;
   }
-}
+ }
