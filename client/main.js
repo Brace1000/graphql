@@ -113,7 +113,13 @@ async function fetchUserData() {
 
     // Fetch XP data
     const xpQuery = `{
-      transaction(where: {type: {_eq: "xp"}}, order_by: {createdAt: asc}) {
+      transaction(
+        where: {
+          type: {_eq: "xp"},
+          eventId: {_eq: 75}
+        }, 
+        order_by: {createdAt: asc}
+      ) {
         id
         amount
         createdAt
@@ -124,12 +130,27 @@ async function fetchUserData() {
         }
       }
     }`;
+    
+    const xpData = await executeGraphQLQuery(xpQuery, token);
+    displayXPInfo(xpData.data.transaction);
+  } catch (error) {
+    console.error("Error fetching XP data:", error);
+    document.getElementById('xp-info').innerHTML = `
+      <h2>XP Information</h2>
+      <p class="error">Error loading XP data</p>
+    `;
     const xpData = await executeGraphQLQuery(xpQuery, token);
     displayXPInfo(xpData.data.transaction);
 
     // Fetch progress data
     const progressQuery = `{
-      progress(where: {grade: {_gt: 0}}, order_by: {updatedAt: desc}) {
+      progress(
+        where: {
+          grade: {_gt: 0},
+          eventId: {_eq: 75}
+        }, 
+        order_by: {updatedAt: desc}
+      ) {
         id
         grade
         updatedAt
@@ -140,12 +161,11 @@ async function fetchUserData() {
         }
       }
     }`;
+    
     const progressData = await executeGraphQLQuery(progressQuery, token);
     displayProgressInfo(progressData.data.progress);
 
-  } catch (error) {
-    showError('Error fetching data: ' + error.message);
-  }
+  } 
 }
 
 // Execute GraphQL query
@@ -184,11 +204,10 @@ function displayXPInfo(transactions) {
 
   document.getElementById('xp-info').innerHTML = `
     <h2>XP Information</h2>
-    <p><strong>Total XP:</strong> ${totalXP.toLocaleString()}</p>
-    
+    <p><strong>Total XP (Module 75):</strong> ${totalXP.toLocaleString()}</p>
+    <p><strong>Projects Completed:</strong> ${transactions.length}</p>
   `;
 
-  // Store data for graphs
   window.xpData = transactions;
   generateXPGraph();
 }
@@ -197,64 +216,95 @@ function displayXPInfo(transactions) {
 function displayProgressInfo(progress) {
   const totalProjects = progress.length;
   const totalGrades = progress.reduce((sum, proj) => sum + proj.grade, 0);
+  const averageGrade = totalProjects > 0 ? (totalGrades / totalProjects).toFixed(2) : 0;
 
   document.getElementById('progress-info').innerHTML = `
-    <h2>Progress Information</h2>
+    <h2>Module 75 Progress</h2>
     <p><strong>Completed Projects:</strong> ${totalProjects}</p>
     <p><strong>Total Grades:</strong> ${totalGrades}</p>
-    <p><strong>Average Grade:</strong> ${(totalGrades / totalProjects).toFixed(2)}</p>
+    <p><strong>Average Grade:</strong> ${averageGrade}</p>
     <p><strong>Latest Project:</strong> ${progress[0]?.path || 'None'}</p>
   `;
 
-  // Store data for graphs
   window.progressData = progress;
-  //generateProjectsGraph();
 }
 
-
 // Generate XP graph
+// Enhanced XP Graph Function
 function generateXPGraph() {
+  const container = document.getElementById('xp-graph');
+  container.innerHTML = '';
+
   if (!window.xpData || window.xpData.length === 0) {
-    document.getElementById('xp-graph').innerHTML = '<p>No XP data available</p>';
+    container.innerHTML = '<p>No XP data available for Module 75</p>';
     return;
   }
 
-  const data = window.xpData;
-  const width = 800;
-  const height = 400;
-  const padding = 50;
+  // Sort data by date
+  const sortedData = [...window.xpData].sort((a, b) => 
+    new Date(a.createdAt) - new Date(b.createdAt)
+  );
 
-  // Process data for the graph
+  // Calculate cumulative XP
   let cumulativeXP = 0;
-  const graphData = data.map((tx) => {
+  const points = sortedData.map(tx => {
     cumulativeXP += tx.amount;
     return {
       date: new Date(tx.createdAt),
       xp: cumulativeXP,
+      amount: tx.amount,
+      path: tx.path
     };
   });
+
+  // Graph dimensions
+  const width = container.clientWidth;
+  const height = 400;
+  const padding = 60;
 
   // Create SVG
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('width', width);
   svg.setAttribute('height', height);
   svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+  svg.style.backgroundColor = '#1e293b';
 
-  // Create path for the line
-  const pathData = graphData
-    .map((point, i) => {
-      const x = padding + ((point.date - graphData[0].date) / (graphData[graphData.length - 1].date - graphData[0].date)) * (width - 2 * padding);
-      const y = height - padding - (point.xp / cumulativeXP) * (height - 2 * padding);
-      return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
-    })
-    .join(' ');
+  // Calculate scales
+  const xScale = date => {
+    const dateRange = points[points.length-1].date - points[0].date;
+    return padding + ((date - points[0].date) / dateRange) * (width - 2*padding);
+  };
+
+  const yScale = xp => {
+    const maxXP = points[points.length-1].xp;
+    return height - padding - (xp / maxXP) * (height - 2*padding);
+  };
+
+  // Create line path
+  let pathData = `M ${xScale(points[0].date)},${yScale(points[0].xp)}`;
+  points.forEach(point => {
+    pathData += ` L ${xScale(point.date)},${yScale(point.xp)}`;
+  });
 
   const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
   path.setAttribute('d', pathData);
   path.setAttribute('fill', 'none');
   path.setAttribute('stroke', '#6366f1');
-  path.setAttribute('stroke-width', '2');
+  path.setAttribute('stroke-width', '3');
   svg.appendChild(path);
+
+  // Add data points with tooltips
+  points.forEach(point => {
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', xScale(point.date));
+    circle.setAttribute('cy', yScale(point.xp));
+    circle.setAttribute('r', '5');
+    circle.setAttribute('fill', '#6366f1');
+    circle.setAttribute('data-xp', point.xp);
+    circle.setAttribute('data-date', point.date.toLocaleDateString());
+    circle.setAttribute('data-path', point.path);
+    svg.appendChild(circle);
+  });
 
   // Add axes
   const xAxis = document.createElementNS('http://www.w3.org/2000/svg', 'line');
@@ -262,53 +312,60 @@ function generateXPGraph() {
   xAxis.setAttribute('y1', height - padding);
   xAxis.setAttribute('x2', width - padding);
   xAxis.setAttribute('y2', height - padding);
-  xAxis.setAttribute('stroke', 'white');
+  xAxis.setAttribute('stroke', '#94a3b8');
   svg.appendChild(xAxis);
 
   const yAxis = document.createElementNS('http://www.w3.org/2000/svg', 'line');
   yAxis.setAttribute('x1', padding);
-  yAxis.setAttribute('y1', padding);
+  yAxis.setAttribute('y1', height - padding);
   yAxis.setAttribute('x2', padding);
-  yAxis.setAttribute('y2', height - padding);
-  yAxis.setAttribute('stroke', 'white');
-  
+  yAxis.setAttribute('y2', padding);
+  yAxis.setAttribute('stroke', '#94a3b8');
   svg.appendChild(yAxis);
 
   // Add labels
   const title = document.createElementNS('http://www.w3.org/2000/svg', 'text');
   title.setAttribute('x', width / 2);
-  title.setAttribute('y', 25);
+  title.setAttribute('y', 30);
   title.setAttribute('text-anchor', 'middle');
-  title.setAttribute('font-weight', 'semi-bold');
   title.setAttribute('fill', 'white');
-  title.textContent = 'XP Earned Over Time';
-  title.setAttribute('fill', 'white');
+  title.textContent = 'Module 75 XP Progression';
   svg.appendChild(title);
 
-  const xLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-  xLabel.setAttribute('x', width / 2);
-  xLabel.setAttribute('y', height - 10);
-  xLabel.setAttribute('text-anchor', 'middle');
-  title.setAttribute('fill', 'white');
-  xLabel.textContent = 'Date';
-  xLabel.setAttribute('fill', 'white');
-  
-  svg.appendChild(xLabel);
+  container.appendChild(svg);
 
-  const yLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-  yLabel.setAttribute('x', -height / 2);
-  yLabel.setAttribute('y', 15);
-  yLabel.setAttribute('text-anchor', 'middle');
-  yLabel.setAttribute('transform', 'rotate(-90)');
-  yLabel.setAttribute('fill', 'white');
-  yLabel.textContent = 'XP';
- 
-  svg.appendChild(yLabel);
+  // Add interactive tooltips
+  const tooltip = document.createElement('div');
+  tooltip.style.position = 'absolute';
+  tooltip.style.background = 'rgba(30, 41, 59, 0.9)';
+  tooltip.style.color = 'white';
+  tooltip.style.padding = '8px 12px';
+  tooltip.style.borderRadius = '4px';
+  tooltip.style.pointerEvents = 'none';
+  tooltip.style.display = 'none';
+  tooltip.style.border = '1px solid #6366f1';
+  container.appendChild(tooltip);
 
-  document.getElementById('xp-graph').innerHTML = '';
-  document.getElementById('xp-graph').appendChild(svg);
+  svg.querySelectorAll('circle').forEach(circle => {
+    circle.addEventListener('mouseover', (e) => {
+      tooltip.style.display = 'block';
+      tooltip.innerHTML = `
+        <div><strong>Date:</strong> ${circle.getAttribute('data-date')}</div>
+        <div><strong>Total XP:</strong> ${parseInt(circle.getAttribute('data-xp')).toLocaleString()}</div>
+        <div><strong>Project:</strong> ${circle.getAttribute('data-path').split('/').pop()}</div>
+      `;
+    });
+    
+    circle.addEventListener('mousemove', (e) => {
+      tooltip.style.left = `${e.clientX + 15}px`;
+      tooltip.style.top = `${e.clientY - 15}px`;
+    });
+    
+    circle.addEventListener('mouseout', () => {
+      tooltip.style.display = 'none';
+    });
+  });
 }
-
 
 
 // Handle logout
