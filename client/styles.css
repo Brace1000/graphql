@@ -76,7 +76,7 @@
     color: #e53e3e;
     margin-top: 10px;
   }
-  /* Add styles for skill circles */
+ 
   .skill-circle {
     display: inline-flex;
     flex-direction: column;
@@ -153,17 +153,17 @@
 .Logout container styles
 .login-container {
   position: Absolute;
-  top: 100px; /* Adjust as needed */
-  right: 50px; /* Adjust as needed */
+  top: 100px; 
+  right: 50px; 
   z-index: 1000;
   width:400px
   
-  /* Ensure it's above other elements */
+ 
 }
 
-/* Logout button styles */
+
 #logout-button {
-  background: #6366f1; /* Red-600 */
+  background: #6366f1; 
   color: white;
   border: none;
   padding: 8px 16px;
@@ -173,7 +173,7 @@
 }
 
 #logout-button:hover {
-  background: #b91c1c; /* Red-700 */
+  background: #b91c1c; 
 }
 
 /* Profile header styles */
@@ -182,7 +182,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 16px;
-  background: #1e293b; /* Slate-800 */
+  background: #1e293b; 
   color: white;
   border-radius: 12px;
   margin-bottom: 20px;
@@ -263,19 +263,19 @@
   margin: 5px 0;
   font-size: 14px;
 }
-/* Position the logo outside the header and in the top-left corner */
+
 .logo {
   position: fixed;
-  top: 20px; /* Adjust this value to move it down from the top of the page */
-  left: 20px; /* Adjust this value to move it away from the left side */
-  width: 200px; /* Adjust the size of the logo */
+  top: 20px; 
+  left: 20px; 
+  width: 200px; 
   height: auto;
-  z-index: 1000; /* Ensure the logo stays on top of other elements */
+  z-index: 1000; 
 }
 
 /* Adjust the header position */
 .header {
-  margin-left: 0px; /* Push the header content to the right so it doesn't overlap with the logo */
+  margin-left: 0px; 
   padding: 20px;
 }
 /* Password input wrapper */
@@ -288,7 +288,7 @@
 /* Password input field */
 #password {
   flex: 1;
-  padding-right: 40px; /* Space for the toggle icon */
+  padding-right: 40px; 
 }
 
 /* Password toggle icon */
@@ -303,7 +303,7 @@
 .password-toggle:hover {
   opacity: 0.8;
 }
-/* Add to your styles.css */
+
 .level-display {
   text-align: center;
   margin-top: 15px;
@@ -336,7 +336,7 @@
 .audit-ratio-box {
   width: 80px;
   height: 80px;
-  border-radius: 8px; /* Slightly rounded corners instead of circle */
+  border-radius: 8px; 
   display: flex;
   align-items: center;
   justify-content: center;
@@ -350,4 +350,97 @@
 .audit-label {
   font-size: 14px;
   color: #94a3b8;
+}
+
+
+.xp-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem; 
+  margin-bottom: 1rem; 
+}
+
+.xp-total-box {
+  width: 120px;         
+  height: 120px;        
+  border-radius: 50%; 
+  
+  /* Flexbox to center the text inside */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Text styling */
+  color:#4f46e5;
+  font-size: 1.5rem;   
+  font-weight: 600;
+  text-align: center;
+  
+  /* Smooth transition for any potential future changes */
+  transition: background-color 0.3s ease;
+}
+
+.xp-summary {
+    text-align: center;
+    margin-top: 1rem;
+}
+
+
+/* Target the h2 inside the user-info card for the welcome message */
+#user-info h2 {
+  font-size: 1.75rem;
+  font-weight: 300;
+  color: #cbd5e1;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+/* Make the username interactive and styled */
+.welcome-username-toggle {
+  font-weight: 600;
+  color: #818cf8;
+  cursor: pointer;
+  transition: color 0.2s ease-in-out;
+  border-bottom: 2px dotted transparent;
+}
+
+.welcome-username-toggle:hover {
+  color: #a78bfa;
+  border-bottom-color: #a78bfa;
+}
+
+/* The panel that holds the user details */
+.user-details-panel {
+  max-height: 0; /* Initially collapsed */
+  overflow: hidden;
+  transition: max-height 0.4s ease-out; /* Smooth slide animation */
+  margin-top: 1rem;
+}
+
+/* The class that makes the panel visible */
+.user-details-panel.visible {
+  max-height: 200px; /* Set to a height larger than the content */
+}
+
+/* Styling for each row in the details panel */
+.user-detail-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 0.25rem;
+  border-bottom: 1px solid #334155;
+}
+
+.user-detail-item:last-child {
+  border-bottom: none;
+}
+
+.detail-label {
+  font-weight: 500;
+  color: #94a3b8;
+}
+
+.detail-value {
+  font-weight: 400;
+  color: #e2e8f0;
 }
