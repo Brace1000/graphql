@@ -103,12 +103,12 @@ function displayAuditInfo(audits, transactions, auditRatio) {
   if (auditRatio >= 1.0 && auditRatio < 1.5) ratioColor = '#10b981'; // Green
 
   auditContainer.innerHTML = `
-    <h2>Audit Status</h2>
+    <h2>Audit Ratio</h2>
     <div class="audit-display">
       <div class="audit-ratio-box" style="background: ${ratioColor}">
         ${auditRatio.toFixed(1)}
       </div>
-      <p class="audit-label">Current Audit Ratio</p>
+      
     </div>
    
   `;
