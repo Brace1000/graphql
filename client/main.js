@@ -7,14 +7,12 @@ const config = {
   authEndpoint: 'https://learn.zone01kisumu.ke/api/auth/signin',
 };
 
-
-// Handle login form submission
 document.getElementById('login-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const username = document.getElementById('username').value;
   const password = document.getElementById('password').value;
 
-  // Create Basic Auth credentials
+  
   const credentials = btoa(`${username}:${password}`);
 
   try {
@@ -78,9 +76,9 @@ function showProfilePage() {
   if (token) {
     
     // Fetch skill data
-    fetchSkillData(token) // Fetch skills data
+    fetchSkillData(token) 
       .then(skills => {
-        displaySkillInfo(skills); // Display the skills
+        displaySkillInfo(skills); 
       })
       .catch(err => {
         console.error('Error fetching skills:', err);
@@ -106,6 +104,7 @@ async function fetchUserData() {
       user {
         id
         login
+        attrs
       }
     }`;
     const userData = await executeGraphQLQuery(userQuery, token);
@@ -187,15 +186,84 @@ export async function executeGraphQLQuery(query, token) {
   return response.json();
 }
 
-// Display user info
 function displayUserInfo(user) {
-  document.getElementById('user-info').innerHTML = `
-    <h2>User Information</h2>
-    <p><strong>Login:</strong> ${user.login}</p>
-    <p><strong>ID:</strong> ${user.id}</p>
-  `;
-}
+  const userInfoCard = document.getElementById('user-info');
+  if (!userInfoCard) {
+      console.error("User info card with id='user-info' not found!");
+      return;
+  }
 
+  const calculateAge = (dobString) => {
+    if (!dobString) return 'N/A';
+    const birthDate = new Date(dobString);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDifference = today.getMonth() - birthDate.getMonth();
+    
+    if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
+  // --- EXTRACT ALL USER DETAILS ---
+  const fullName = `${user.attrs.firstName || ''} ${user.attrs.lastName || ''}`.trim();
+  const campus = user.attrs.campus || 'Kisumu';
+  const email = user.attrs.email || 'Not available';
+  const username = user.login;
+  const dateOfBirth = user.attrs.dateOfBirth || null; // Assuming the field is 'dateOfBirth'
+  const age = calculateAge(dateOfBirth);
+  
+ 
+  const formattedDob = dateOfBirth 
+    ? new Date(dateOfBirth).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) 
+    : 'N/A';
+
+
+  userInfoCard.innerHTML = `
+    <h2>Welcome back, <span id="welcome-username" class="welcome-username-toggle">${username}</span>!</h2>
+    
+    <div id="user-details-panel" class="user-details-panel">
+      <div class="user-detail-item">
+        <span class="detail-label">Full Name:</span>
+        <span class="detail-value">${fullName || 'N/A'}</span>
+      </div>
+      <div class="user-detail-item">
+        <span class="detail-label">Email:</span>
+        <span class="detail-value">${email}</span>
+      </div>
+      <div class="user-detail-item">
+        <span class="detail-label">Campus:</span>
+        <span class="detail-value">${campus}</span>
+      </div>
+      <div class="user-detail-item">
+        <span class="detail-label">Date of Birth:</span>
+        <span class="detail-value">${formattedDob}</span>
+      </div>
+      <div class="user-detail-item">
+        <span class="detail-label">Age:</span>
+        <span class="detail-value">${age}</span>
+      </div>
+      <div class="user-detail-item">
+        <span class="detail-label">User ID:</span>
+        <span class="detail-value">${user.id}</span>
+      </div>
+    </div>
+  `;
+
+  const usernameToggle = document.getElementById('welcome-username');
+  if (usernameToggle) {
+    usernameToggle.addEventListener('mouseover', () => {
+      document.getElementById('user-details-panel').classList.add('visible');
+      document.getElementById('user-info').classList.add('details-visible');
+    });
+
+    usernameToggle.addEventListener('mouseout', () => {
+      document.getElementById('user-details-panel').classList.remove('visible');
+      document.getElementById('user-info').classList.remove('details-visible');
+    });
+  }
+}
 // Display XP info
 function displayXPInfo(transactions) {
   const container = document.getElementById('xp-info');
@@ -214,15 +282,34 @@ function displayXPInfo(transactions) {
 
   // Calculate cumulative XP
   const totalXP = transactions.reduce((sum, tx) => sum + tx.amount, 0);
+  const formattedXP = formatSize(totalXP); 
 
-  // Format total XP using the opt function (or formatSize if needed)
-  const formattedXP = opt(totalXP);
+  // 1. Define XP thresholds and colors 
+  const expertThreshold = 2500000; // 2.5 MB
+  const proficientThreshold = 1000000; // 1.0 MB
+  
+  const expertColor = '#f59e0b';     // Vibrant Orange/Gold
+  const proficientColor = '#ffffff';  // White
 
-  // Display the formatted XP
+  const defaultColor = '#4f46e5';    // Purple (same as graph bars)
+
+  // 2. Determine the color based on total XP
+  let xpColor = defaultColor;
+  if (totalXP >= expertThreshold) {
+    xpColor = expertColor;
+  } else if (totalXP >= proficientThreshold) {
+    xpColor = proficientColor;
+  }
+
+  // 3. Update the HTML to include the new colorful display
   container.innerHTML = `
-    <h2>XP Information</h2>
-    <p><strong>Total XP (Module 75):</strong> ${formattedXP}</p>
-    <p><strong>Projects Completed:</strong> ${transactions.length}</p>
+    <h2>Total XP Earned</h2>
+    <div class="xp-display">
+      <div class="xp-total-box" style="background: ${xpColor}">
+        ${formattedXP}
+      </div>
+    </div>
+    
   `;
 
   // Store cumulative XP data for graphing
@@ -231,7 +318,6 @@ function displayXPInfo(transactions) {
   // Generate the XP graph
   generateXPGraph();
 }
-
 
 
 // Enhanced XP Graph Function
@@ -383,21 +469,33 @@ document.getElementById('logout-button').addEventListener('click', () => {
 document.addEventListener('DOMContentLoaded', () => {
   if (localStorage.getItem('jwt')) {
     showProfilePage();
-    //initAudits(); // Fetch audit schema
+    
   } else {
     document.getElementById('login-page').style.display = 'block';
   }
 });
 
- export function formatSize(bytes) {
-  if (bytes >= 1048576) { // 1 MB = 1048576 bytes
-    return `${(bytes / 1048576).toFixed(2)} MB`;
-  } else if (bytes >= 1024) { // 1 KB = 1024 bytes
-    return `${(bytes / 1024).toFixed(2)} KB`;
-  } else {
-    return `${bytes} bytes`;
+ 
+
+export function formatSize(bytes) {
+  if (bytes === 0) {
+    return '0 Bytes';
   }
- }
+
+  const KILOBYTE = 1000;
+  const MEGABYTE = 1000 * KILOBYTE;
+  const GIGABYTE = 1000 * MEGABYTE;
+
+  if (bytes >= GIGABYTE) {
+    return `${(bytes / GIGABYTE).toFixed(2)} GB`;
+  } else if (bytes >= MEGABYTE) {
+    return `${(bytes / MEGABYTE).toFixed(2)} MB`;
+  } else if (bytes >= KILOBYTE) {
+    return `${(bytes / KILOBYTE).toFixed(1)} KB`; 
+  } else {
+    return `${bytes} Bytes`;
+  }
+}
  export function opt(xp) {
   if (xp < 1000) {
       return xp + " Bytes";
