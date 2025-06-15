@@ -1,112 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GraphQL School Profile</title>
-  <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zone01 Kisumu | Student Profile</title>
+    <link rel="icon" href="img/favicon.ico"> 
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <img src="../img/logo.png" alt="School Logo" class="logo">
-  <div class="container">
-    <div class="header">
-      <h1>School Profile - GraphQL Project</h1>
-    </div>
-    <!-- Login Page -->
-    <div id="login-page" style="display: none;">
-      <div class="login-container">
-        <form id="login-form">
-          <div class="form-group">
-            <label for="username">Username or Email</label>
-            <input type="text" id="username" required>
-          </div>
 
-          <div class="form-group">
-            <label for="password">Password</label>
-            <div class="password-wrapper">
-              <input type="password" id="password" required>
-              <span id="toggle-password" class="password-toggle">👁️</span>
+    <!-- ======================= LOGIN PAGE ======================= -->
+    <div id="login-page" class="page-container">
+        <div class="login-wrapper">
+            <div class="welcome-panel">
+                <img src="../img/logo.png" alt="Zone01 Kisumu Logo" class="welcome-logo">
+                <h1>Welcome to Zone01 Kisumu!</h1>
+                <p>This is your first step. A two-part game challenging your memory and logical thinking.</p>
+                <div class="info-steps">
+                    <div class="step">
+                        <h3>Game #1 - Memory</h3>
+                        <p>Test your memory in this colourful game that gets harder as you progress.</p>
+                    </div>
+                    <div class="step">
+                        <h3>Game #2 - Zzle</h3>
+                        <p>This is where the real challenge begins. Zzle tests your logic and perseverance.</p>
+                    </div>
+                </div>
+                <div class="good-luck">Good luck!</div>
             </div>
-          </div>
 
-          <button type="submit">Sign In</button>
-
-          <div id="error-message" class="error-message"></div>
-        </form>
-      </div>
+            <!-- Right Side: Login Form Panel -->
+            <div class="login-panel">
+                <div class="login-form-container">
+                    <h2>Log In</h2>
+                    <form id="login-form">
+                        <div class="form-group">
+                            <label for="username">Email or Username</label>
+                            <input type="text" id="username" required autocomplete="username">
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <div class="password-wrapper">
+                                <input type="password" id="password" required autocomplete="current-password">
+                                <span id="toggle-password" class="password-toggle">👁️</span>
+                            </div>
+                        </div>
+                        <div id="error-message" class="error-message"></div>
+                        <button type="submit" class="login-button">Sign In</button>
+                    </form>
+                    <div class="login-footer">
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Profile Page -->
-    <div id="profile-page" style="display: none;">
-      <div class="profile-header">
-        <div id="audits-dropdown" style="display: none;"></div>
-        <button id="audits-btn">Audits</button>
-        
-        <button id="logout-button">Log Out</button>
-        
-      </div>
-      
+    <!-- ======================= PROFILE PAGE ======================= -->
+    <div id="profile-page" class="page-container" style="display: none;">
+        <!-- Header / Navigation Bar -->
+        <header class="profile-header">
+            <div class="header-logo">
+                <img src="/img/logo.png" alt="School Logo" class="profile-logo">
+                <span>Student Dashboard</span>
+            </div>
+            <div class="header-controls">
+                <div class="audits-container">
+                    <button id="audits-btn">Audits</button>
+                    <div id="audits-dropdown" style="display: none;"></div>
+                </div>
+                <button id="logout-button">Log Out</button>
+            </div>
+        </header>
 
-      <div class="grid">
-        <!-- User Info Card -->
-        <div class="card" id="user-info">
-          <h2>User Information</h2>
-          <p>Loading user information...</p>
-        </div>
+        <!-- Main Profile Content -->
+        <main class="profile-content">
+            <!-- User Info Card -->
+            <div class="card" id="user-info">
+                <p>Loading user information...</p>
+            </div>
 
-        <!-- XP Info Card -->
-        <div class="card" id="xp-info">
-          <h2>XP Information</h2>
-          <p>Loading XP information...</p>
-        </div>
-        <!-- Skills Card -->
-        <div class="card full-width" id="skills-info">
-          <h2>Skills</h2>
-          <div id="skills-container">
-            <p>Loading skills...</p>
-          </div>
-        </div>
+            <!-- Grid for Stats -->
+            <div class="stats-grid">
+                <div class="card" id="xp-info">
+                    <p>Loading XP information...</p>
+                </div>
+                <div class="card" id="level-info">
+                    <p>Loading level information...</p>
+                </div>
+                <div class="card" id="audit-info">
+                    <p>Loading audit information...</p>
+                </div>
+            </div>
 
-        <!-- Add this with your other cards in the grid section -->
-<div class="card" id="level-info">
-  <h2>Module Progress</h2>
-  <p>Loading level information...</p>
-</div>
+            <!-- Skills Card -->
+            <div class="card full-width" id="skills-info">
+                <h2>Skills Acquired</h2>
+                <div id="skills-container">
+                    <p>Loading skills...</p>
+                </div>
+            </div>
 
-        <!-- Audit Info Card -->
-        <div class="card" id="audit-info">
-          <h2>Audit Information</h2>
-          <p>Loading audit information...</p>
-        </div>
-        <!-- Audit dropdown and button -->
-         <!-- <button id="audits-btn">Audits</button>
-            -->
-  <!-- Audit items will be dynamically added here -->
-             </div>
-
-        <!-- XP Graph -->
-        <div class="card full-width">
-          <h2>XP Progress Over Time</h2>
-          <div id="xp-graph">
-            <p>Loading XP graph...</p>
-          </div>
-        </div>
-
-        
-
-        <!-- Audit Graph -->
-        <div class="card full-width">
-          <h2>Audits Done vs. Received</h2>
-          <div id="audit-graph">
-            <p>Loading audits graph...</p>
-          </div>
-        </div>
-      </div>
+            <!-- Graphs Section -->
+            <div class="graphs-grid">
+                <div class="card full-width">
+                    <div id="xp-graph">
+                        <p>Loading XP graph...</p>
+                    </div>
+                </div>
+                <div class="card full-width">
+                    <div id="audit-graph">
+                        <p>Loading audits graph...</p>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
-  </div>
-  
-  <script type="module" src="main.js"></script>
-  <script type="module" src="audits.js"></script>
+
+    <script type="module" src="main.js"></script>
+    <script type="module" src="audits.js"></script>
 </body>
 </html>
