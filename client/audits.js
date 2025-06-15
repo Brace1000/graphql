@@ -1,97 +1,106 @@
 
 import { executeGraphQLQuery, formatSize } from './main.js';
 export async function initAudits(token) {
-  // Fetch audit data with group information
-  const auditQuery = `{
-    user {
+
+
+const auditQuery = `{
+  user {
+    id
+    login
+    auditRatio
+    audits(order_by: {createdAt: desc}) {
       id
-      login
-      auditRatio
-      audits{
-        id
-        closureType
-        auditedAt
-        closedAt
-        createdAt
-        group {
-          captain {
-            canAccessPlatform
-          }
-          captainId
-          captainLogin
-          path
-          createdAt
-          updatedAt
-          members {
-            userId
-            userLogin
-          }
-        }
-        private {
-          code
+      closureType
+      auditedAt
+      closedAt
+      createdAt
+      group {
+        captainId
+        captainLogin
+        path
+        members {
+          userId
+          userLogin
         }
       }
+      private {
+        code
+      }
     }
-  }`;
-
-  try {
-    const auditData = await executeGraphQLQuery(auditQuery, token);
-    console.log('Audit Query:', auditQuery);
-    console.log('Audit Data Response:', JSON.stringify(auditData, null, 2));
-
-    // Extract audits and user data from the response
-    const user = auditData.data.user[0];
-    //const audits = user.audits || [];
-    const auditRatio = user.auditRatio || 0;
-
-    const audits = auditData.data.user.flatMap((user) => user.audits || []);
-
-    // Display the audit information
-    displayAuditInfo(audits, auditRatio);
-    updateAudits(audits);
-    
-    // Setup event listeners for the audits dropdown after elements are populated
-    setupAuditDropdownListeners();
-  } catch (error) {
-    console.error("Error fetching audit data:", error);
-    document.getElementById('audit-info').innerHTML = `<p>Error loading audit data</p>`;
+    transactions(
+      order_by: {createdAt: desc},
+      where: {
+        type: {_in: ["up", "down"]}
+      }
+    ) {
+      type
+      amount
+      createdAt
+      path
+    }
   }
+}`;
+
+
+try {
+  const auditData = await executeGraphQLQuery(auditQuery, token);
+  
+  // Extract user data from the response. It's an array with one user.
+  const user = auditData.data.user[0];
+  if (!user) {
+      throw new Error("User data not found in API response.");
+  }
+
+  // Extract the data we need
+  const audits = user.audits || [];
+  const transactions = user.transactions || []; 
+  const auditRatio = user.auditRatio || 0;
+
+  
+  displayAuditInfo(audits, transactions, auditRatio);
+
+ 
+  updateAudits(audits);
+  setupAuditDropdownListeners();
+
+} catch (error) {
+  console.error("Error fetching or processing audit data:", error);
+  document.getElementById('audit-info').innerHTML = `<p>Error loading audit data</p>`;
+}
 }
 
-function displayAuditInfo(audits, auditRatio) {
+
+function displayAuditInfo(audits, transactions, auditRatio) {
+  // Ensure we have arrays to work with to prevent errors
   audits = audits || [];
+  transactions = transactions || [];
 
-  // Count audits done and received
-  const auditsDone = audits.filter((audit) => audit.closureType === 'succeeded').length;
-  const auditsReceived = audits.filter((audit) =>
-    ['expired', 'unused', 'failed', 'autoFailed', 'canceled', 'invalidated', 'reassigned'].includes(audit.closureType)
-  ).length;
+  const auditsDoneSizeBytes = transactions
+    .filter(tx => tx.type === 'up')
+    .reduce((sum, tx) => sum + tx.amount, 0);
 
-  // Use the correct size per audit
-  const sizePerAuditDoneBytes = 28539.02; // Size per audit for 'Done' audits
-  const sizePerAuditReceivedBytes = 22488.76; // Size per audit for 'Received' audits
+  // Sum the amounts from the 'down' transactions (Audits Received)
+  const auditsReceivedSizeBytes = transactions
+    .filter(tx => tx.type === 'down')
+    .reduce((sum, tx) => sum + tx.amount, 0);
 
-  // Calculate total sizes for audits done and received
-  const auditsDoneSizeBytes = auditsDone * sizePerAuditDoneBytes;
-  const auditsReceivedSizeBytes = auditsReceived * sizePerAuditReceivedBytes;
-
-  // Format sizes (using the formatSize function which expects bytes)
+  // Format the calculated sizes for display
   const formattedAuditsDoneSize = formatSize(auditsDoneSizeBytes);
   const formattedAuditsReceivedSize = formatSize(auditsReceivedSizeBytes);
 
-  // Store all relevant data in window.auditData
+
   window.auditData = {
-    auditsDone,
-    auditsReceived,
+    auditsDone: transactions.filter(tx => tx.type === 'up').length,
+    auditsReceived: transactions.filter(tx => tx.type === 'down').length,
     auditsDoneSize: auditsDoneSizeBytes,
     auditsReceivedSize: auditsReceivedSizeBytes,
   };
 
-  // Display audit information
+  // Display audit ratio info (this part remains the same)
   const auditContainer = document.getElementById('audit-info');
   let ratioColor = '#ef4444'; // Default red
-  if (auditRatio >= 1.0) ratioColor = '#10b981'; // Green
-  else if (auditRatio >= 1.5) ratioColor = 'orange';
+  if (auditRatio >= 1.5) ratioColor = '#f59e0b'; // Orange
+  if (auditRatio >= 1.0 && auditRatio < 1.5) ratioColor = '#10b981'; // Green
 
   auditContainer.innerHTML = `
     <h2>Audit Status</h2>
@@ -101,6 +110,7 @@ function displayAuditInfo(audits, auditRatio) {
       </div>
       <p class="audit-label">Current Audit Ratio</p>
     </div>
+   
   `;
 
   // Generate the graph with the correct data
@@ -115,11 +125,11 @@ export function updateAudits(audits) {
     return; // Exit if elements are missing
   }
 
-  auditsDropdown.innerHTML = ""; // Clear previous audits
+  auditsDropdown.innerHTML = ""; 
 
   // Filter for available audits (not closed)
   const availableAudits = audits.filter(audit => audit.closedAt === null);
-  console.log("Available Audits:", availableAudits); // Log available audits
+  console.log("Available Audits:", availableAudits); 
 
   if (availableAudits.length === 0) {
     auditsBtn.textContent = "No audits";
@@ -151,7 +161,7 @@ export function updateAudits(audits) {
     auditsDropdown.appendChild(auditDiv);
   });
 
-  // Log the dropdown content after updating
+ 
   console.log("Audits Dropdown Content:", auditsDropdown.innerHTML);
 }
 function setupAuditDropdownListeners() {
