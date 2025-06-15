@@ -159,13 +159,11 @@ function displayModuleLevel(level) {
   const levelContainer = document.getElementById('level-info');
   
   levelContainer.innerHTML = `
-    <h2>Module Progress</h2>
+    <h2>Module Level</h2>
     <div class="level-display">
       <div class="level-circle">
         ${level}
-      </div>
-      <p class="level-label">Current Level in Module 75</p>
-    </div>
+    
   `;
 }
 // Execute GraphQL query
@@ -303,7 +301,7 @@ function displayXPInfo(transactions) {
 
   // 3. Update the HTML to include the new colorful display
   container.innerHTML = `
-    <h2>Total XP Earned</h2>
+       <h2>Total XP</h2>
     <div class="xp-display">
       <div class="xp-total-box" style="background: ${xpColor}">
         ${formattedXP}
@@ -427,7 +425,7 @@ function generateXPGraph() {
   // Add interactive tooltips
   const tooltip = document.createElement('div');
   tooltip.style.position = 'absolute';
-  tooltip.style.background = 'rgba(30, 41, 59, 0.9)';
+  tooltip.style.background = 'white';
   tooltip.style.color = 'white';
   tooltip.style.padding = '8px 12px';
   tooltip.style.borderRadius = '4px';
