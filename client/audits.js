@@ -116,27 +116,43 @@ function displayAuditInfo(audits, transactions, auditRatio) {
   // Generate the graph with the correct data
   generateAuditGraph();
 }
+// In audits.js, replace the existing function
+
 export function updateAudits(audits) {
   const auditsBtn = document.getElementById("audits-btn");
   const auditsDropdown = document.getElementById("audits-dropdown");
 
   if (!auditsBtn || !auditsDropdown) {
     console.error("Audit elements not found in the DOM");
-    return; // Exit if elements are missing
-  }
-
-  auditsDropdown.innerHTML = ""; 
-
-  // Filter for available audits (not closed)
-  const availableAudits = audits.filter(audit => audit.closedAt === null);
-  console.log("Available Audits:", availableAudits); 
-
-  if (availableAudits.length === 0) {
-    auditsBtn.textContent = "No audits";
-    auditsDropdown.style.display = "none";
     return;
   }
 
+  // Always clear previous content
+  auditsDropdown.innerHTML = ""; 
+
+  const availableAudits = audits.filter(audit => audit.closedAt === null);
+
+  if (availableAudits.length === 0) {
+   
+    auditsBtn.textContent = "Audits (0)";
+    auditsBtn.classList.add('no-audits'); 
+    
+    // 2. Create and append the well-decorated message inside the dropdown.
+    const noAuditsMessage = document.createElement("div");
+    noAuditsMessage.classList.add("no-audits-message");
+    noAuditsMessage.innerHTML = `
+      <div class="no-audits-icon">✔</div>
+      <h3>All Clear!</h3>
+      <p>No pending audits to do. You are good to go!</p>
+    `;
+    auditsDropdown.appendChild(noAuditsMessage);
+
+    // Note: We don't hide the dropdown. We let the user click to see this message.
+    return; 
+  }
+
+
+  auditsBtn.classList.remove('no-audits');
   auditsBtn.textContent = `Audits (${availableAudits.length})`;
 
   availableAudits.forEach((audit) => {
@@ -144,25 +160,19 @@ export function updateAudits(audits) {
     let members = "";
 
     if (audit.group.members && Array.isArray(audit.group.members)) {
-      for (let user of audit.group.members) {
-        members += " " + (user.userLogin || "Unknown");
-      }
+      members = audit.group.members.map(user => user.userLogin || "Unknown").join(", ");
     }
 
     const auditDiv = document.createElement("div");
     auditDiv.classList.add("audit-item");
     auditDiv.innerHTML = `
       <p><strong>Project:</strong> ${projectname}</p>
-      <p><strong>Group Admin:</strong> ${audit.group.captainLogin || "Unknown"}</p>
+      <p><strong>Captain:</strong> ${audit.group.captainLogin || "Unknown"}</p>
       <p><strong>Members:</strong> ${members || "None"}</p>
-      <p><strong>Audit Code:</strong> ${audit.private && audit.private.code ? audit.private.code : "N/A"}</p>
+      <p><strong>Code:</strong> ${audit.private?.code || "N/A"}</p>
     `;
-
     auditsDropdown.appendChild(auditDiv);
   });
-
- 
-  console.log("Audits Dropdown Content:", auditsDropdown.innerHTML);
 }
 function setupAuditDropdownListeners() {
   const auditsBtn = document.getElementById("audits-btn");
@@ -269,7 +279,7 @@ function generateAuditGraph() {
   xAxis.setAttribute('y1', height - padding);
   xAxis.setAttribute('x2', width - padding);
   xAxis.setAttribute('y2', height - padding);
-  xAxis.setAttribute('stroke', '#1e293b');
+  xAxis.setAttribute('stroke', 'white');
   svg.appendChild(xAxis);
 
   const yAxis = document.createElementNS('http://www.w3.org/2000/svg', 'line');
@@ -277,7 +287,7 @@ function generateAuditGraph() {
   yAxis.setAttribute('y1', padding);
   yAxis.setAttribute('x2', padding);
   yAxis.setAttribute('y2', height - padding);
-  yAxis.setAttribute('stroke', '#1e293b');
+  yAxis.setAttribute('stroke', 'white');
   svg.appendChild(yAxis);
 
   // Add title

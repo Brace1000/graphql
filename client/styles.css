@@ -409,3 +409,52 @@ body {
   .profile-header { flex-direction: column; gap: 1rem; }
   .stats-grid { grid-template-columns: 1fr; }
 }
+/* Add this CSS to your stylesheet */
+
+/* Style for the button when there are no audits */
+#audits-btn.no-audits {
+  background-color: #10b981; /* A nice success green color */
+  border-color: #10b981;
+}
+
+#audits-btn.no-audits:hover {
+    background-color: #059669; /* A darker green on hover */
+}
+
+/* Styling for the decorative "No audits" message inside the dropdown */
+.no-audits-message {
+  padding: 2rem 1rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.no-audits-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: rgba(16, 185, 129, 0.1); /* Light green background */
+  color: #10b981; /* Success green color */
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  font-size: 2rem;
+  font-weight: bold;
+  border: 2px solid #10b981;
+}
+
+.no-audits-message h3 {
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.no-audits-message p {
+  color: var(--text-secondary);
+  max-width: 80%;
+  font-size: 0.9rem;
+}
